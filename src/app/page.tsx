@@ -1,65 +1,102 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import TopBar from '@/components/terminal/TopBar';
+import NavTabs from '@/components/terminal/NavTabs';
+import Watchlist from '@/components/terminal/Watchlist';
+import ChartPanel from '@/components/terminal/ChartPanel';
+import NewsPanel from '@/components/terminal/NewsPanel';
+import EarningsCalendar from '@/components/terminal/EarningsCalendar';
+import MacroStrip from '@/components/terminal/MacroStrip';
+import OptionsChain from '@/components/terminal/OptionsChain';
+import MacroPanel from '@/components/terminal/MacroPanel';
+import CryptoWatchlist from '@/components/terminal/CryptoWatchlist';
+
+type Tab = 'EQUITY' | 'CRYPTO' | 'OPTIONS' | 'MACRO';
+
+export default function TerminalPage() {
+  const [activeTab, setActiveTab] = useState<Tab>('EQUITY');
+  const [selectedSymbol, setSelectedSymbol] = useState('AAPL');
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="terminal-layout">
+      {/* Row 1: Top Bar */}
+      <TopBar />
+
+      {/* Row 2: Nav Tabs */}
+      <NavTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Row 3: Main content */}
+      {activeTab === 'EQUITY' && (
+        <>
+          {/* Left: Watchlist */}
+          <Watchlist
+            selectedSymbol={selectedSymbol}
+            onSelectSymbol={setSelectedSymbol}
+          />
+
+          {/* Center: Chart */}
+          <ChartPanel symbol={selectedSymbol} />
+
+          {/* Right: News + Earnings */}
+          <div
+            style={{
+              gridRow: '3',
+              gridColumn: '3',
+              display: 'grid',
+              gridTemplateRows: '1fr 1fr',
+              overflow: 'hidden',
+              borderLeft: '1px solid #1e1e1e',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <NewsPanel symbol={selectedSymbol} />
+            <EarningsCalendar />
+          </div>
+        </>
+      )}
+
+      {activeTab === 'CRYPTO' && (
+        <div
+          style={{
+            gridRow: '3',
+            gridColumn: '1 / -1',
+            overflow: 'hidden',
+          }}
+        >
+          <CryptoWatchlist />
         </div>
-      </main>
+      )}
+
+      {activeTab === 'OPTIONS' && (
+        <div
+          style={{
+            gridRow: '3',
+            gridColumn: '1 / -1',
+            overflow: 'hidden',
+            background: '#0d0d0d',
+            borderTop: '1px solid #1e1e1e',
+          }}
+        >
+          <OptionsChain />
+        </div>
+      )}
+
+      {activeTab === 'MACRO' && (
+        <div
+          style={{
+            gridRow: '3',
+            gridColumn: '1 / -1',
+            overflow: 'hidden',
+            background: '#0d0d0d',
+            borderTop: '1px solid #1e1e1e',
+          }}
+        >
+          <MacroPanel />
+        </div>
+      )}
+
+      {/* Row 4: Macro Strip */}
+      <MacroStrip />
     </div>
   );
 }

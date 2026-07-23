@@ -1,26 +1,96 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg: #0a0a0a;
+  --amber: #f39f41;
+  --green: #4af6c3;
+  --red: #ff433d;
+  --blue: #0068ff;
+  --border: #1e1e1e;
+  --muted: #333333;
+  --muted-fg: #555555;
+  --text: #c8c8c8;
+  --panel-bg: #0d0d0d;
+  --radius: 0.25rem;
+  --background: #0a0a0a;
+  --foreground: #c8c8c8;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-sans: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.terminal-layout {
+  display: grid;
+  grid-template-rows: 36px 36px 1fr 28px;
+  grid-template-columns: 200px 1fr 280px;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.panel-header {
+  background: #111111;
+  border-bottom: 1px solid var(--border);
+  padding: 4px 8px;
+  color: var(--amber);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.price-up { color: var(--green); }
+.price-down { color: var(--red); }
+.price-neutral { color: var(--text); }
+.amber { color: var(--amber); }
+.muted { color: var(--muted-fg); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Remove default shadcn styles that conflict */
+@layer base {
+  * { @apply border-[#1e1e1e]; }
+  body { background: var(--bg); color: var(--text); }
 }
