@@ -3,6 +3,7 @@
 import useSWR from 'swr';
 import { formatPrice, formatPct, getPriceClass, formatVolume, formatMarketCap } from '@/lib/formatters';
 import { CRYPTO_WATCHLIST } from '@/lib/symbols';
+import { glassHeader, glassChip } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -27,7 +28,7 @@ export default function CryptoWatchlist() {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: '#111', borderBottom: '1px solid #1e1e1e', padding: '6px 10px', flexShrink: 0 }}>
+      <div style={{ ...glassHeader, padding: '6px 10px', flexShrink: 0 }}>
         <span style={{ color: '#f39f41', fontWeight: 700 }}>CRYPTO MARKETS</span>
       </div>
 
@@ -36,13 +37,13 @@ export default function CryptoWatchlist() {
         {/* Column headers */}
         <div
           style={{
+            ...glassChip,
             display: 'grid',
             gridTemplateColumns: '60px 1fr 100px 100px 100px 100px',
             padding: '4px 12px',
             fontSize: '10px',
             color: '#555',
-            borderBottom: '1px solid #1e1e1e',
-            background: '#0a0a0a',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
           }}
         >
           <span>SYM</span>
@@ -64,7 +65,7 @@ export default function CryptoWatchlist() {
                 display: 'grid',
                 gridTemplateColumns: '60px 1fr 100px 100px 100px 100px',
                 padding: '8px 12px',
-                borderBottom: '1px solid #0f0f0f',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
                 fontSize: '12px',
               }}
             >
@@ -88,7 +89,7 @@ export default function CryptoWatchlist() {
       </div>
 
       {/* Footer note */}
-      <div style={{ padding: '6px 12px', borderTop: '1px solid #1e1e1e', fontSize: '10px', color: '#333' }}>
+      <div style={{ padding: '6px 12px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '10px', color: '#555' }}>
         Data: CoinGecko Public API · Refreshes every 60s
       </div>
     </div>

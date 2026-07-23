@@ -2,6 +2,7 @@
 
 import useSWR from 'swr';
 import { formatPrice, formatPct, getPriceClass } from '@/lib/formatters';
+import { glassHeader, glassPanel } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -40,7 +41,7 @@ export default function MacroPanel() {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: '#111', borderBottom: '1px solid #1e1e1e', padding: '6px 10px', flexShrink: 0 }}>
+      <div style={{ ...glassHeader, padding: '6px 10px', flexShrink: 0 }}>
         <span style={{ color: '#f39f41', fontWeight: 700 }}>MACRO INDICATORS</span>
       </div>
 
@@ -63,10 +64,8 @@ export default function MacroPanel() {
               <div
                 key={key}
                 style={{
-                  background: '#0d0d0d',
-                  border: '1px solid #1e1e1e',
+                  ...glassPanel,
                   padding: '10px',
-                  borderRadius: '2px',
                 }}
               >
                 <div style={{ color: '#555', fontSize: '10px', letterSpacing: '0.5px', marginBottom: '4px', textTransform: 'uppercase' }}>
@@ -104,14 +103,12 @@ export default function MacroPanel() {
           {/* Bar chart */}
           <div
             style={{
+              ...glassPanel,
               display: 'flex',
               gap: '16px',
               alignItems: 'flex-end',
               height: '100px',
               padding: '8px 12px',
-              background: '#0d0d0d',
-              border: '1px solid #1e1e1e',
-              borderRadius: '2px',
             }}
           >
             {YIELD_SYMBOLS.map(sym => {
@@ -145,7 +142,7 @@ export default function MacroPanel() {
 
           {/* Spread indicator */}
           {macro && macro['^TNX'] && macro['^IRX'] && (
-            <div style={{ marginTop: '8px', padding: '6px 10px', background: '#0d0d0d', border: '1px solid #1e1e1e', fontSize: '11px', borderRadius: '2px' }}>
+            <div style={{ ...glassPanel, marginTop: '8px', padding: '6px 10px', fontSize: '11px' }}>
               <span style={{ color: '#555' }}>10Y−3M Spread: </span>
               {(() => {
                 const spread = (macro['^TNX']?.value ?? 0) - (macro['^IRX']?.value ?? 0);
@@ -165,7 +162,7 @@ export default function MacroPanel() {
         </div>
 
         {/* FRED note */}
-        <div style={{ padding: '8px 10px', background: '#0d0d0d', border: '1px solid #1e1e1e', color: '#555', fontSize: '11px', borderRadius: '2px' }}>
+        <div style={{ ...glassPanel, padding: '8px 10px', color: '#555', fontSize: '11px' }}>
           Tip: Add <span style={{ color: '#f39f41' }}>FRED_API_KEY</span> to .env.local for CPI, GDP, and unemployment data from the St. Louis Federal Reserve.
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import useSWR from 'swr';
 import { formatPrice, formatPct, getPriceClass } from '@/lib/formatters';
+import { glassBar } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -33,10 +34,10 @@ export default function MacroStrip() {
   return (
     <div
       style={{
+        ...glassBar,
         gridColumn: '1 / -1',
         gridRow: '4',
-        background: '#050505',
-        borderTop: '1px solid #1e1e1e',
+        borderRadius: 10,
         display: 'flex',
         alignItems: 'center',
         padding: '0 12px',
@@ -47,7 +48,7 @@ export default function MacroStrip() {
       }}
     >
       <span style={{ color: '#f39f41', fontWeight: 700, fontSize: '10px', letterSpacing: '1px' }}>MACRO</span>
-      <span style={{ color: '#1e1e1e' }}>│</span>
+      <span style={{ color: 'rgba(255,255,255,0.15)' }}>│</span>
 
       {items.map(({ key, label }) => {
         const item = macro?.[key];

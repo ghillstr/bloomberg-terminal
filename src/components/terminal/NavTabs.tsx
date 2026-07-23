@@ -1,5 +1,7 @@
 'use client';
 
+import { glassBar } from '@/lib/glass';
+
 type Tab = 'EQUITY' | 'CRYPTO' | 'OPTIONS' | 'MACRO';
 
 interface NavTabsProps {
@@ -13,13 +15,13 @@ export default function NavTabs({ activeTab, onTabChange }: NavTabsProps) {
   return (
     <div
       style={{
+        ...glassBar,
         gridColumn: '1 / -1',
-        background: '#080808',
-        borderBottom: '1px solid #1e1e1e',
+        borderRadius: 10,
         display: 'flex',
         alignItems: 'stretch',
         padding: '0 4px',
-        gap: '2px',
+        gap: '4px',
       }}
     >
       {TABS.map(tab => (
@@ -30,14 +32,17 @@ export default function NavTabs({ activeTab, onTabChange }: NavTabsProps) {
             background: activeTab === tab ? '#f39f41' : 'transparent',
             color: activeTab === tab ? '#0a0a0a' : '#555555',
             border: 'none',
+            borderRadius: 6,
+            boxShadow: activeTab === tab ? '0 0 14px rgba(243, 159, 65, 0.45)' : 'none',
             cursor: 'pointer',
             padding: '0 16px',
+            margin: '4px 0',
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '1px',
             fontFamily: 'JetBrains Mono, monospace',
-            height: '100%',
-            transition: 'all 0.1s',
+            height: 'calc(100% - 8px)',
+            transition: 'all 0.15s',
           }}
           onMouseEnter={e => {
             if (activeTab !== tab) {

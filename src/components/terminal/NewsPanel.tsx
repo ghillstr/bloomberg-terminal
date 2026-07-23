@@ -49,7 +49,7 @@ export default function NewsPanel({ symbol }: NewsPanelProps) {
             key={i}
             style={{
               padding: '7px 8px',
-              borderBottom: '1px solid #111',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
               cursor: item.url ? 'pointer' : 'default',
             }}
             onClick={() => item.url && window.open(item.url, '_blank')}

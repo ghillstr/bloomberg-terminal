@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import { formatPrice } from '@/lib/formatters';
-import { DEFAULT_WATCHLIST } from '@/lib/symbols';
+import { glassHeader, glassChip, glassInput } from '@/lib/glass';
+import type { WatchlistItem } from './Watchlist';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -28,9 +29,16 @@ interface OptionsData {
   error?: string;
 }
 
-export default function OptionsChain() {
-  const [symbol, setSymbol] = useState('AAPL');
+interface OptionsChainProps {
+  watchlist: WatchlistItem[];
+}
+
+export default function OptionsChain({ watchlist }: OptionsChainProps) {
+  const [selected, setSelected] = useState(watchlist[0]?.symbol ?? 'AAPL');
   const [view, setView] = useState<'calls' | 'puts' | 'both'>('both');
+
+  // Fall back to the first watchlist symbol if the selected one was removed
+  const symbol = watchlist.find(w => w.symbol === selected)?.symbol ?? watchlist[0]?.symbol ?? selected;
 
   const { data, isLoading, error } = useSWR<OptionsData>(
     `/api/options?symbol=${symbol}`,
@@ -44,7 +52,7 @@ export default function OptionsChain() {
     fontWeight: 700,
     letterSpacing: '0.5px',
     textAlign: 'right',
-    borderBottom: '1px solid #1e1e1e',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
     whiteSpace: 'nowrap',
   };
 
@@ -53,12 +61,12 @@ export default function OptionsChain() {
     fontSize: '11px',
     textAlign: 'right',
     color: itm ? '#c8c8c8' : '#555',
-    borderBottom: '1px solid #0f0f0f',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
   });
 
   const renderTable = (contracts: OptionContract[], type: 'CALLS' | 'PUTS') => (
     <div>
-      <div style={{ padding: '4px 8px', background: '#0a0a0a', borderBottom: '1px solid #1e1e1e' }}>
+      <div style={{ ...glassChip, padding: '4px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <span style={{ color: type === 'CALLS' ? '#4af6c3' : '#ff433d', fontWeight: 700, fontSize: '11px' }}>
           {type}
         </span>
@@ -73,7 +81,7 @@ export default function OptionsChain() {
         </thead>
         <tbody>
           {contracts.slice(0, 20).map((c, i) => (
-            <tr key={i} style={{ background: c.inTheMoney ? '#0d1a0d' : 'transparent' }}>
+            <tr key={i} style={{ background: c.inTheMoney ? 'rgba(74, 246, 195, 0.07)' : 'transparent' }}>
               <td style={{ ...tdStyle(c.inTheMoney), color: '#f39f41', fontWeight: 700 }}>
                 {c.strike?.toFixed(0) ?? '--'}
               </td>
@@ -96,8 +104,7 @@ export default function OptionsChain() {
       {/* Controls */}
       <div
         style={{
-          background: '#111',
-          borderBottom: '1px solid #1e1e1e',
+          ...glassHeader,
           padding: '6px 10px',
           display: 'flex',
           alignItems: 'center',
@@ -108,18 +115,18 @@ export default function OptionsChain() {
         <span style={{ color: '#f39f41', fontWeight: 700 }}>OPTIONS CHAIN</span>
         <select
           value={symbol}
-          onChange={e => setSymbol(e.target.value)}
+          onChange={e => setSelected(e.target.value)}
           style={{
-            background: '#1a1a1a',
+            ...glassInput,
             color: '#f39f41',
-            border: '1px solid #333',
             padding: '2px 6px',
             fontSize: '11px',
             fontFamily: 'JetBrains Mono, monospace',
+            borderRadius: '6px',
             cursor: 'pointer',
           }}
         >
-          {DEFAULT_WATCHLIST.map(s => (
+          {watchlist.map(s => (
             <option key={s.symbol} value={s.symbol}>{s.symbol}</option>
           ))}
         </select>
@@ -129,15 +136,17 @@ export default function OptionsChain() {
               key={v}
               onClick={() => setView(v)}
               style={{
-                background: view === v ? '#f39f41' : 'transparent',
+                background: view === v ? '#f39f41' : 'rgba(255,255,255,0.05)',
                 color: view === v ? '#0a0a0a' : '#555',
-                border: '1px solid ' + (view === v ? '#f39f41' : '#333'),
+                border: '1px solid ' + (view === v ? '#f39f41' : 'rgba(255,255,255,0.1)'),
+                boxShadow: view === v ? '0 0 10px rgba(243, 159, 65, 0.4)' : 'none',
                 padding: '2px 8px',
                 fontSize: '10px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 fontFamily: 'JetBrains Mono, monospace',
-                borderRadius: '2px',
+                borderRadius: '6px',
+                transition: 'all 0.15s',
               }}
             >
               {v.toUpperCase()}

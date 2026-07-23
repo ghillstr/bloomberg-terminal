@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 import useSWR from 'swr';
 import { formatPrice, formatPct, getPriceClass } from '@/lib/formatters';
-import { DEFAULT_WATCHLIST } from '@/lib/symbols';
+import { glassInput } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-const STORAGE_KEY = 'bloomberg-watchlist';
-
-interface WatchlistItem {
+export interface WatchlistItem {
   symbol: string;
   name: string;
 }
@@ -24,35 +22,18 @@ interface Quote {
 }
 
 interface WatchlistProps {
+  watchlist: WatchlistItem[];
+  onAdd: (item: WatchlistItem) => void;
+  onRemove: (symbol: string) => void;
   selectedSymbol: string;
   onSelectSymbol: (symbol: string) => void;
 }
 
-function loadWatchlist(): WatchlistItem[] {
-  if (typeof window === 'undefined') return DEFAULT_WATCHLIST;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return DEFAULT_WATCHLIST;
-}
-
-export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistProps) {
-  const [watchlist, setWatchlist] = useState<WatchlistItem[]>(DEFAULT_WATCHLIST);
+export default function Watchlist({ watchlist, onAdd, onRemove, selectedSymbol, onSelectSymbol }: WatchlistProps) {
   const [input, setInput] = useState('');
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    setWatchlist(loadWatchlist());
-  }, []);
-
-  // Persist to localStorage whenever watchlist changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(watchlist));
-  }, [watchlist]);
 
   const symbolsParam = watchlist.map(s => s.symbol).join(',');
   const { data: quotes, isLoading } = useSWR<Quote[]>(
@@ -70,19 +51,16 @@ export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistP
       setError('Already in watchlist');
       return;
     }
-
     setAdding(true);
     setError('');
-
     try {
       const res = await fetch(`/api/quotes?symbols=${sym}`);
       const data: Quote[] = await res.json();
       const quote = Array.isArray(data) ? data[0] : null;
-
       if (!quote || quote.error || quote.price === null) {
         setError(`"${sym}" not found`);
       } else {
-        setWatchlist(prev => [...prev, { symbol: sym, name: quote.name || sym }]);
+        onAdd({ symbol: sym, name: quote.name || sym });
         setInput('');
       }
     } catch {
@@ -94,10 +72,10 @@ export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistP
 
   const handleRemove = (sym: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setWatchlist(prev => prev.filter(w => w.symbol !== sym));
-    if (selectedSymbol === sym && watchlist.length > 1) {
+    onRemove(sym);
+    if (selectedSymbol === sym) {
       const remaining = watchlist.filter(w => w.symbol !== sym);
-      onSelectSymbol(remaining[0]?.symbol ?? '');
+      if (remaining.length > 0) onSelectSymbol(remaining[0].symbol);
     }
   };
 
@@ -107,18 +85,14 @@ export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistP
   };
 
   return (
-    <div
-      className="panel"
-      style={{ gridRow: '3', gridColumn: '1', display: 'flex', flexDirection: 'column' }}
-    >
-      {/* Header */}
+    <div className="panel" style={{ gridRow: '3', gridColumn: '1', display: 'flex', flexDirection: 'column' }}>
       <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>Watchlist</span>
         <span style={{ color: '#333', fontSize: '9px' }}>{watchlist.length} symbols</span>
       </div>
 
       {/* Add symbol input */}
-      <div style={{ padding: '6px 8px', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
+      <div style={{ padding: '6px 8px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: '4px' }}>
           <input
             ref={inputRef}
@@ -128,41 +102,40 @@ export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistP
             placeholder="Add symbol..."
             maxLength={10}
             style={{
+              ...glassInput,
               flex: 1,
-              background: '#111',
-              border: '1px solid #2a2a2a',
               color: '#f39f41',
               padding: '4px 6px',
               fontSize: '11px',
               fontFamily: 'JetBrains Mono, monospace',
               outline: 'none',
-              borderRadius: '2px',
+              borderRadius: '6px',
             }}
             onFocus={e => (e.target.style.borderColor = '#f39f41')}
-            onBlur={e => (e.target.style.borderColor = '#2a2a2a')}
+            onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.12)')}
           />
           <button
             onClick={handleAdd}
             disabled={adding || !input.trim()}
             style={{
-              background: adding ? '#222' : '#f39f41',
-              color: '#0a0a0a',
+              background: adding ? 'rgba(255,255,255,0.08)' : '#f39f41',
+              color: adding ? '#888' : '#0a0a0a',
               border: 'none',
               padding: '4px 8px',
               fontSize: '11px',
               fontWeight: 700,
               cursor: adding || !input.trim() ? 'not-allowed' : 'pointer',
               fontFamily: 'JetBrains Mono, monospace',
-              borderRadius: '2px',
+              borderRadius: '6px',
+              boxShadow: !adding && input.trim() ? '0 0 10px rgba(243, 159, 65, 0.4)' : 'none',
               opacity: !input.trim() ? 0.4 : 1,
+              transition: 'all 0.15s',
             }}
           >
             {adding ? '...' : '+'}
           </button>
         </div>
-        {error && (
-          <div style={{ color: '#ff433d', fontSize: '10px', marginTop: '3px' }}>{error}</div>
-        )}
+        {error && <div style={{ color: '#ff433d', fontSize: '10px', marginTop: '3px' }}>{error}</div>}
       </div>
 
       {/* Ticker list */}
@@ -178,15 +151,15 @@ export default function Watchlist({ selectedSymbol, onSelectSymbol }: WatchlistP
               onClick={() => onSelectSymbol(symbol)}
               style={{
                 padding: '6px 8px',
-                borderBottom: '1px solid #111',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
                 cursor: 'pointer',
-                background: isSelected ? '#1a1200' : 'transparent',
+                background: isSelected ? 'rgba(243, 159, 65, 0.12)' : 'transparent',
                 borderLeft: isSelected ? '2px solid #f39f41' : '2px solid transparent',
                 transition: 'background 0.1s',
                 position: 'relative',
               }}
               onMouseEnter={e => {
-                if (!isSelected) (e.currentTarget as HTMLElement).style.background = '#111';
+                if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
                 const btn = e.currentTarget.querySelector('.remove-btn') as HTMLElement;
                 if (btn) btn.style.opacity = '1';
               }}

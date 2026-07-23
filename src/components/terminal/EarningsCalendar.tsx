@@ -2,6 +2,7 @@
 
 import useSWR from 'swr';
 import { formatEarningsDate } from '@/lib/formatters';
+import { glassChip } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -13,9 +14,14 @@ interface EarningsItem {
   revenueEstimate: number | null;
 }
 
-export default function EarningsCalendar() {
+interface EarningsCalendarProps {
+  symbols: string[];
+}
+
+export default function EarningsCalendar({ symbols }: EarningsCalendarProps) {
+  const symbolsParam = symbols.join(',');
   const { data: earnings, isLoading } = useSWR<EarningsItem[]>(
-    '/api/earnings',
+    `/api/earnings?symbols=${symbolsParam}`,
     fetcher,
     { refreshInterval: 3600000 }
   );
@@ -38,13 +44,13 @@ export default function EarningsCalendar() {
         {earnings && earnings.length > 0 && (
           <div
             style={{
+              ...glassChip,
               display: 'grid',
               gridTemplateColumns: '48px 48px 1fr 60px',
               padding: '4px 8px',
               fontSize: '10px',
               color: '#555',
-              borderBottom: '1px solid #1e1e1e',
-              background: '#0a0a0a',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
             }}
           >
             <span>DATE</span>
@@ -61,7 +67,7 @@ export default function EarningsCalendar() {
               display: 'grid',
               gridTemplateColumns: '48px 48px 1fr 60px',
               padding: '5px 8px',
-              borderBottom: '1px solid #0f0f0f',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
               fontSize: '11px',
             }}
           >

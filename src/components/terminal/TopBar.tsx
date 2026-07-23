@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { formatPrice, formatPct, formatTime, isMarketOpen } from '@/lib/formatters';
+import { glassBar } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -60,9 +61,9 @@ export default function TopBar() {
   return (
     <div
       style={{
+        ...glassBar,
         gridColumn: '1 / -1',
-        background: '#050505',
-        borderBottom: '1px solid #1e1e1e',
+        borderRadius: 10,
         display: 'flex',
         alignItems: 'center',
         padding: '0 12px',
@@ -84,7 +85,7 @@ export default function TopBar() {
         </span>
       </span>
 
-      <span style={{ color: '#1e1e1e' }}>│</span>
+      <span style={{ color: 'rgba(255,255,255,0.15)' }}>│</span>
 
       {/* Key prices */}
       {spy && (
@@ -116,7 +117,7 @@ export default function TopBar() {
         </span>
       )}
 
-      <span style={{ color: '#1e1e1e' }}>│</span>
+      <span style={{ color: 'rgba(255,255,255,0.15)' }}>│</span>
 
       {vix && (
         <span style={{ flexShrink: 0 }}>

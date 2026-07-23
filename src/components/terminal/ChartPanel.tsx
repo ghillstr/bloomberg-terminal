@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { formatPrice, formatChange, formatPct, formatVolume, getPriceClass } from '@/lib/formatters';
+import { glassHeader } from '@/lib/glass';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -44,6 +45,7 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const volumeSeriesRef = useRef<any>(null);
   const [period, setPeriod] = useState<Period>('1d');
+  const [chartReady, setChartReady] = useState(false);
 
   const { data: chartData } = useSWR<{ candles: Candle[] }>(
     `/api/chart?symbol=${symbol}&period=${period}`,
@@ -80,14 +82,14 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
 
       chart = createChart(chartRef.current, {
         layout: {
-          background: { color: '#0d0d0d' },
+          background: { color: 'rgba(13, 13, 15, 0.35)' },
           textColor: '#555555',
           fontSize: 11,
           fontFamily: 'JetBrains Mono, monospace',
         },
         grid: {
-          vertLines: { color: '#111111' },
-          horzLines: { color: '#111111' },
+          vertLines: { color: 'rgba(255, 255, 255, 0.04)' },
+          horzLines: { color: 'rgba(255, 255, 255, 0.04)' },
         },
         crosshair: {
           mode: CrosshairMode?.Normal ?? 1,
@@ -95,10 +97,10 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
           horzLine: { color: '#f39f41', style: 1, width: 1 },
         },
         rightPriceScale: {
-          borderColor: '#1e1e1e',
+          borderColor: 'rgba(255, 255, 255, 0.08)',
         },
         timeScale: {
-          borderColor: '#1e1e1e',
+          borderColor: 'rgba(255, 255, 255, 0.08)',
           timeVisible: true,
           secondsVisible: false,
         },
@@ -153,6 +155,7 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
       chartInstanceRef.current = chart;
       candleSeriesRef.current = candleSeries;
       volumeSeriesRef.current = volumeSeries;
+      setChartReady(true);
     });
 
     const resizeObserver = new ResizeObserver(() => {
@@ -176,11 +179,13 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
         candleSeriesRef.current = null;
         volumeSeriesRef.current = null;
       }
+      setChartReady(false);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update chart data
+  // Update chart data — also re-runs once the series finishes its async init,
+  // since chartData can resolve from SWR before lightweight-charts is ready.
   useEffect(() => {
     if (!chartData?.candles || !candleSeriesRef.current) return;
     const candles = chartData.candles;
@@ -205,7 +210,7 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
     }
 
     chartInstanceRef.current?.timeScale().fitContent();
-  }, [chartData]);
+  }, [chartData, chartReady]);
 
   const priceClass = getPriceClass(quote?.changePct ?? null);
 
@@ -217,8 +222,7 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
       {/* Chart header */}
       <div
         style={{
-          background: '#111',
-          borderBottom: '1px solid #1e1e1e',
+          ...glassHeader,
           padding: '6px 10px',
           display: 'flex',
           alignItems: 'center',
@@ -234,7 +238,7 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
             <span className={priceClass} style={{ fontSize: '12px' }}>
               {formatChange(quote.change)} ({formatPct(quote.changePct)})
             </span>
-            <span style={{ color: '#333', fontSize: '11px' }}>│</span>
+            <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '11px' }}>│</span>
             <span className="muted" style={{ fontSize: '11px' }}>
               O:<span style={{ color: '#c8c8c8' }}>{formatPrice(quote.open)}</span>{' '}
               H:<span className="price-up">{formatPrice(quote.high)}</span>{' '}
@@ -252,15 +256,17 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
               key={p}
               onClick={() => setPeriod(p)}
               style={{
-                background: period === p ? '#f39f41' : '#111',
+                background: period === p ? '#f39f41' : 'rgba(255,255,255,0.05)',
                 color: period === p ? '#0a0a0a' : '#555',
-                border: '1px solid ' + (period === p ? '#f39f41' : '#1e1e1e'),
+                border: '1px solid ' + (period === p ? '#f39f41' : 'rgba(255,255,255,0.1)'),
+                boxShadow: period === p ? '0 0 10px rgba(243, 159, 65, 0.4)' : 'none',
                 cursor: 'pointer',
                 padding: '2px 8px',
                 fontSize: '10px',
                 fontWeight: 700,
                 fontFamily: 'JetBrains Mono, monospace',
-                borderRadius: '2px',
+                borderRadius: '6px',
+                transition: 'all 0.15s',
               }}
             >
               {p.toUpperCase()}
