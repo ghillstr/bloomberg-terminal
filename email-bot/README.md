@@ -72,9 +72,31 @@ The fastest correction loop is just telling Claude in chat: "the bot archived
 the Frick newsletter, I want those" or "add karendennis@mya.org as a VIP". That
 updates both the files and the live Routine.
 
-## Adding another email account
+## The three accounts
 
-The bot covers whichever mailboxes are connected as Claude connectors. To add
-one, connect it under claude.ai Settings → Connectors, then ask Claude to
-extend the Routine to sweep it too. Non-Gmail accounts that forward into this
-Gmail are already covered by the existing sweep.
+| Address | Status |
+|---|---|
+| `ghillstr56@gmail.com` | Connected and swept |
+| `georgehillstrom@gmail.com` | Not connected — receives the PNC card statements |
+| `hillstromgeorge@gmail.com` | Not connected |
+
+Neither of the other two forwards into the connected mailbox. That was checked
+by searching for mail delivered to those addresses: every hit was either
+dual-addressed by the sender or manually forwarded years ago. So their mail is
+currently invisible to the bot.
+
+There are two ways to fix that, and both need George, not Claude — an account
+can only be authorized by its owner signing in.
+
+**Connect each account** (keeps the mailboxes separate). At claude.ai, go to
+Settings → Connectors, add Gmail again, and sign in as the second account; then
+repeat for the third. Once they appear as connected, ask Claude to re-run
+triage and it will sweep all three. Each mailbox needs its own `Priority/*`
+labels created on first run.
+
+**Or forward them into ghillstr56** (one mailbox to watch). In each of the other
+two accounts: Settings → Forwarding and POP/IMAP → Add a forwarding address →
+`ghillstr56@gmail.com`, then confirm from the email Google sends. The existing
+sweep then covers all three with no further setup. The tradeoff is that
+everything lands in one inbox and replies go out from the wrong address unless
+send-as is also configured.

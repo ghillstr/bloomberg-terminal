@@ -3,7 +3,19 @@
 Classification rules for the hourly email triage bot. Edit this file to retune
 the bot — it is the single source of truth for what counts as important.
 
-Mailbox: ghillstr56@gmail.com
+Mailboxes:
+
+| Address | Status |
+|---|---|
+| `ghillstr56@gmail.com` | Connected. Swept today. |
+| `georgehillstrom@gmail.com` | **Not connected.** Receives the PNC card statements. |
+| `hillstromgeorge@gmail.com` | **Not connected.** |
+
+The two unconnected accounts do not forward here — verified by searching this
+mailbox for mail delivered to them. The only cross-account mail present is
+either dual-addressed by the sender (PNC does this) or was manually forwarded.
+Everything else in those mailboxes is invisible to the bot until they are
+connected. The tiers and VIP list below apply to all three once they are.
 
 ## Tiers
 
