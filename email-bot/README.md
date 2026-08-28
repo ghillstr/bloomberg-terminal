@@ -85,17 +85,16 @@ by searching for mail delivered to those addresses: every hit was either
 dual-addressed by the sender or manually forwarded years ago. So their mail is
 currently invisible to the bot.
 
-There are two ways to fix that, and both need George, not Claude — an account
-can only be authorized by its owner signing in.
+**Connecting them is not an option.** The Gmail connector holds one Google
+account at a time, and authorizing a second replaces the first — so connecting
+`georgehillstrom@` would disconnect `ghillstr56@` and take the bot offline
+entirely. Multi-account connectors are an open feature request, not a shipped
+capability. Forwarding is the only route that covers all three.
 
-**Connect each account** (keeps the mailboxes separate). At claude.ai, go to
-Settings → Connectors, add Gmail again, and sign in as the second account; then
-repeat for the third. Once they appear as connected, ask Claude to re-run
-triage and it will sweep all three. Each mailbox needs its own `Priority/*`
-labels created on first run.
-
-**Or forward them into ghillstr56** (one mailbox to watch). In each of the other
-two accounts: Settings → Forwarding and POP/IMAP → Add a forwarding address →
+**Forward them into ghillstr56** (one mailbox to watch). This is a setting
+inside each source account, so it has to be done by George in a browser —
+Claude is authenticated only to ghillstr56, and the Gmail connector exposes no
+settings API in any case. In each of the other two accounts: Settings → Forwarding and POP/IMAP → Add a forwarding address →
 `ghillstr56@gmail.com`, then confirm from the email Google sends. The existing
 sweep then covers all three with no further setup. The tradeoff is that
 everything lands in one inbox and replies go out from the wrong address unless

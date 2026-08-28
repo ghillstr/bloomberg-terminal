@@ -5,17 +5,32 @@ the bot — it is the single source of truth for what counts as important.
 
 Mailboxes:
 
-| Address | Status |
-|---|---|
-| `ghillstr56@gmail.com` | Connected. Swept today. |
-| `georgehillstrom@gmail.com` | **Not connected.** Receives the PNC card statements. |
-| `hillstromgeorge@gmail.com` | **Not connected.** |
+| Address | Status | Source label |
+|---|---|---|
+| `ghillstr56@gmail.com` | Connected. The only mailbox the bot can read. | — |
+| `georgehillstrom@gmail.com` | Not connected. Forwarding pending. Receives the PNC card statements. | `Source/GeorgeHillstrom` (`Label_9`) |
+| `hillstromgeorge@gmail.com` | Not connected. Forwarding pending. | `Source/HillstromGeorge` (`Label_10`) |
 
-The two unconnected accounts do not forward here — verified by searching this
-mailbox for mail delivered to them. The only cross-account mail present is
-either dual-addressed by the sender (PNC does this) or was manually forwarded.
-Everything else in those mailboxes is invisible to the bot until they are
-connected. The tiers and VIP list below apply to all three once they are.
+**Only one Google account can be connected at a time.** The Gmail connector
+binds to a single account, and authorizing a second one replaces the first
+rather than adding to it — so connecting `georgehillstrom@` would disconnect
+`ghillstr56@` and take the bot offline. Multi-account support is an open
+feature request, not a current capability.
+
+The way to cover all three is therefore **forwarding**, not connecting: each of
+the other two accounts forwards into `ghillstr56@`, and the bot triages one
+mailbox that carries all the mail.
+
+Forwarded messages keep their original `To:` header, so the account a message
+was really sent to stays recoverable. Match on that to apply the source label:
+
+- `to:georgehillstrom@gmail.com` → `Source/GeorgeHillstrom`
+- `to:hillstromgeorge@gmail.com` → `Source/HillstromGeorge`
+
+Apply the source label *in addition to* the `Priority/*` tier, never instead of
+it, and name the source mailbox in the digest so a PNC alert reads as the card
+account rather than as generic ghillstr56 mail. Until forwarding is switched on,
+mail sent only to those two addresses is invisible to the bot.
 
 ## Tiers
 
