@@ -14,6 +14,25 @@ marker is set on 49,000 messages — so it carries no signal to sort by.
 | `rules.md` | The tuning surface. What counts as Critical / Important / FYI / Noise, and the VIP list. **Edit this.** |
 | `routine-prompt.md` | The exact standalone prompt the live Routine runs each hour. |
 
+## Status: the schedule is built but PAUSED
+
+The Routine exists (`trig_017FGqJ16LGLMdC93NWtQEMs`) and is currently
+**disabled**, because Routines created from a Claude Code session cannot carry
+a connector grant on this account — the `connectors` parameter is rejected at
+the org level, and a test firing produced a session with no `mcp__Gmail__*`
+tools at all. An hourly run with no Gmail access would do nothing and notify
+about it 16 times a day, so it is paused rather than left to fail.
+
+**To switch it on:** open Routines at claude.ai, and either attach the Gmail
+connector to the existing "Hourly inbox triage" Routine and re-enable it, or
+create a new Routine there with Gmail attached, pasting the prompt from
+`routine-prompt.md` and the schedule `17 0-3,11-23 * * *` (UTC). Routines
+created in that UI can hold connector grants; ones minted from a session
+cannot.
+
+Until then, triage runs when asked for directly in a Claude session, where the
+Gmail connector is available.
+
 ## How it runs
 
 A Claude Routine fires hourly from 7am to 11pm Eastern. Each firing starts a
@@ -21,6 +40,10 @@ fresh session, searches for inbox mail from the last 3 hours that carries no
 `Priority/*` label yet, tiers each message, labels it, archives the Noise, and
 sends a push notification and email when there is anything Critical or
 Important to report. Quiet hours end silently.
+
+The cron is written in UTC and fixed to Eastern Daylight Time. When Eastern
+goes back to standard time in November the window shifts an hour earlier
+(6am–10pm) until the cron is adjusted.
 
 The 3-hour window against a 1-hour cadence is deliberate overlap: a missed or
 delayed run is picked up by the next one, and the `Priority/*` label exclusion
